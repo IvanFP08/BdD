@@ -1,0 +1,207 @@
+import tkinter as tk
+from tkinter import *
+from tkinter import StringVar, ttk, messagebox, filedialog
+from PIL import ImageTk, Image
+from tkcalendar import *
+from tkcalendar import DateEntry
+from  datetime import date
+import sqlite3
+import os
+import shutil
+import threading
+import pyperclip
+import random
+
+ventana = tk.Tk()
+ventana.geometry("1280x720")
+ventana.title("PawSystem")
+ventana.iconbitmap('paw-icon.ico')
+ventana.configure(bg='#0a4369') 
+
+conexion = sqlite3.connect("dbomeyocan.db")
+cursor = conexion.cursor()
+
+##### PERROS ##### ----------------===============------------------===============------------------================--------------
+
+#Variables Perros ----------------------------------------------------------------------------------
+idP = StringVar()
+nombreP = StringVar()
+fechanacimientoP = StringVar()
+sexoP = StringVar()
+razaP = StringVar()
+colorP = StringVar()
+peloP = StringVar()
+tallaP = StringVar()
+temperamentoP = StringVar()
+esterilizacionP = StringVar()
+discapacidadP = StringVar()
+adoptableP = StringVar()
+fechaesterilizacionP = StringVar()
+fechaingresoP = StringVar()
+
+#CRUD Perros ---------------------------------------------------------------------------------------------
+def limpiarCamposP():
+    idP.set("")
+    nombreP.set("")
+    fechanacimientoP.set("")
+    sexoP.set("")
+    razaP.set("")
+    colorP.set("")
+    peloP.set("")
+    tallaP.set("")
+    temperamentoP.set("")
+    esterilizacionP.set("")
+    discapacidadP.set("")
+    adoptableP.set("")
+    fechaesterilizacionP.set("")
+    fechaingresoP.set("")
+    peloOtroP.set("")
+
+def crearP(fMainframe2):
+    #Conversiones 
+    fechaesterilizacionP = date_fecha_esterilizacionp.get_date()
+    fechaingresoP = date_fecha_ingresop.get_date()
+    try:
+        mesConvP = monthToNum(mesNacP.get())
+        fechanacimientoP = anoNacP.get() + "-" + mesConvP
+    except:
+        messagebox.showwarning("ADVERTENCIA","Ocurrió un error al crear el registro")
+        return
+    sexoPerro = RBsexop.get()
+    if sexoPerro == 1:
+        sexoP = "Hembra"
+    elif sexoPerro == 2:
+        sexoP = "Macho"
+    esterilizacionPerro = RBesterilizacionp.get()
+    if esterilizacionPerro == 1:
+        esterilizacionP = "Si"
+    elif esterilizacionPerro == 2:
+        esterilizacionP = "No"
+        fechaesterilizacionP = "N/A"
+    adoptablePerro = RBadoptablep.get()
+    if adoptablePerro == 1:
+        adoptableP = "Si"
+    elif adoptablePerro == 2:
+        adoptableP = "No"
+    tallaPerro = RBtallap.get()
+    if tallaPerro == 1:
+        tallaP = "Chico"
+    elif tallaPerro == 2:
+        tallaP = "Mediano"
+    elif tallaPerro == 3:
+        tallaP = "Grande"
+    peloPerro = RBpelop.get()
+    if peloPerro == 1:
+        peloP = "Corto"
+    elif peloPerro == 2:
+        peloP = "Largo"
+    elif peloPerro == 3:
+        peloP = "Duro"
+    elif peloPerro == 4:
+        peloP = "Alambre"
+    elif peloPerro == 5:
+        peloP = "Chino"
+    elif peloPerro == 6:
+        peloP = str(peloOtroP.get())
+    #Conexión
+    conexion = sqlite3.connect("dbomeyocan.db")
+    cursor = conexion.cursor()
+    try:
+        print(nombreP.get())
+        print(fechanacimientoP)
+        print(sexoP)
+        print(razaP.get())
+        print(colorP.get())
+        print(str(peloP))
+        print(tallaP)
+        print(temperamentoP.get())
+        print(esterilizacionP)
+        print(discapacidadP.get())
+        print(adoptableP)
+        print(str(fechaesterilizacionP))
+        print(str(fechaingresoP))
+        datosP = nombreP.get(), fechanacimientoP, sexoP, razaP.get(), colorP.get(), peloP, tallaP, temperamentoP.get(), esterilizacionP, discapacidadP.get(), adoptableP, str(fechaesterilizacionP), str(fechaingresoP)
+        cursor.execute("INSERT INTO perros VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)", (datosP))
+        conexion.commit()
+    except:
+        messagebox.showwarning("ADVERTENCIA","Ocurrió un error al crear el registro")
+        pass
+    limpiarCamposP()
+    fMainframe2.destroy()
+    ventana.iconify()
+    abrir_ventana_perros()
+    mostrarCamposP()
+
+def editarP(fMainframe2):
+    fechaesterilizacionP = date_fecha_esterilizacionp.get_date()
+    fechaingresoP = date_fecha_ingresop.get_date()
+    try:
+        mesConvP = monthToNum(mesNacP.get())
+        fechanacimientoP = anoNacP.get() + "-" + mesConvP
+    except:
+        messagebox.showwarning("ADVERTENCIA","Ocurrió un error al editar el registro")
+        return
+    sexoPerro = RBsexop.get()
+    if sexoPerro == 1:
+        sexoP = "Hembra"
+    elif sexoPerro == 2:
+        sexoP = "Macho"
+    esterilizacionPerro = RBesterilizacionp.get()
+    if esterilizacionPerro == 1:
+        esterilizacionP = "Si"
+    elif esterilizacionPerro == 2:
+        esterilizacionP = "No"
+        fechaesterilizacionP = "N/A"
+    adoptablePerro = RBadoptablep.get()
+    if adoptablePerro == 1:
+        adoptableP = "Si"
+    elif adoptablePerro == 2:
+        adoptableP = "No"
+    tallaPerro = RBtallap.get()
+    if tallaPerro == 1:
+        tallaP = "Chico"
+    elif tallaPerro == 2:
+        tallaP = "Mediano"
+    elif tallaPerro == 3:
+        tallaP = "Grande"
+    peloPerro = RBpelop.get()
+    if peloPerro == 1:
+        peloP = "Corto"
+    elif peloPerro == 2:
+        peloP = "Largo"
+    elif peloPerro == 3:
+        peloP = "Duro"
+    elif peloPerro == 4:
+        peloP = "Alambre"
+    elif peloPerro == 5:
+        peloP = "Chino"
+    elif peloPerro == 6:
+        peloP = str(peloOtroP.get())
+    #Conexión
+    conexion = sqlite3.connect("dbomeyocan.db")
+    cursor = conexion.cursor()
+    try:
+        print(nombreP.get())
+        print(fechanacimientoP)
+        print(sexoP)
+        print(razaP.get())
+        print(colorP.get())
+        print(str(peloP))
+        print(tallaP)
+        print(temperamentoP.get())
+        print(esterilizacionP)
+        print(discapacidadP.get())
+        print(adoptableP)
+        print(str(fechaesterilizacionP))
+        print(str(fechaingresoP))
+        datosP = nombreP.get(), fechanacimientoP, sexoP, razaP.get(), colorP.get(), peloP, tallaP, temperamentoP.get(), esterilizacionP, discapacidadP.get(), adoptableP, str(fechaesterilizacionP), str(fechaingresoP)
+        cursor.execute("UPDATE perros SET NOMBRE=?, FECHANACIMIENTO=?, SEXO=?, RAZA=?, COLOR=?, PELO=?, TALLA=?, TEMPERAMENTO=?, ESTERILIZACION=?, DISCAPACIDAD=?, ADOPTABLE=?, FECHAESTERILIZACION=?, FECHAINGRESO=? WHERE ID="+selectedp, (datosP))
+        conexion.commit()
+    except:
+        messagebox.showwarning("ADVERTENCIA","Ocurrió un error al editar el registro")
+        pass
+    limpiarCamposP()
+    fMainframe2.destroy()
+    ventana.iconify()
+    abrir_ventana_perros()
+    mostrarCamposP()
